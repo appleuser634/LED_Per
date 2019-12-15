@@ -4,7 +4,7 @@ import time
 import random
 import threading
 
-pixels = neopixel.NeoPixel(board.D18, 150)
+pixels = neopixel.NeoPixel(board.D18, 750)
 
 import sys
 import tty

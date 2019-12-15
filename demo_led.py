@@ -4,7 +4,7 @@ import time
 import random
 import threading
 
-pixels = neopixel.NeoPixel(board.D18, 150,auto_write=False)
+pixels = neopixel.NeoPixel(board.D18, 750, auto_write=False)
 
 import sys
 import tty
@@ -71,8 +71,10 @@ def fade_light():
             l_strip += 1
 
 def soft_flash(level,color):
+
     r_center = 74
     l_center = 75
+
     for i in range(75):
         pixels[r_center] = level
         pixels[l_center] = level
@@ -113,7 +115,6 @@ def random_wave():
 
         time.sleep(0.2)
         pixels.fill((0,0,0))
-
 
 blihtness = 120
 lo_blight = 50
@@ -173,19 +174,19 @@ def blue_circle():
             pixels[start_point5 + i] = (100,0,255)
         
         
-        if start_point >= 144:
+        if start_point >= 744:
             start_point = 0
         
-        if start_point2 >= 144:
+        if start_point2 >= 744:
             start_point2 = 0
 
-        if start_point3 >= 144:
+        if start_point3 >= 744:
             start_point3 = 0
 
-        if start_point4 >= 144:
+        if start_point4 >= 744:
             start_point4 = 0
 
-        if start_point5 >= 144:
+        if start_point5 >= 744:
             start_point5 = 0
 
 
@@ -200,7 +201,7 @@ def blue_circle():
         time.sleep(0.01)
 
 
-def blue_random():
+def blue_random_fake():
     global loop_flag
 
 
@@ -287,8 +288,257 @@ def blue_random():
             time.sleep(0.1)
             
         #color_list.append(color_list.pop(0))
+
+def fade_func(led_list,color_list,status):
     
+    for i,l in enumerate(led_list):
+        color = color_list[i]
+        if color == "blue" and status == "plus":
+            led_list[i] = (0,0,led_list[i][2] + 5)
+        elif color == "blue" and status == "min":
+            led_list[i] = (0,0,led_list[i][2] - 5)
+        elif color == "whbl" and status == "plus":
+            led_list[i] = (0,led_list[i][1] + 5,led_list[i][2] + 5)
+        elif color == "whbl" and status == "min":
+            led_list[i] = (0,led_list[i][1] - 5,led_list[i][2] - 5)
+        elif color == "pure" and status == "plus":
+            if l[1] <= 90:
+                led_list[i] = (0,led_list[i][1] + 5,led_list[i][2] + 5)
+            else:
+                led_list[i] = (0,led_list[i][1],led_list[i][2] + 5)
+        elif color == "pure" and status == "min":
+            if l[1] >= 10:
+                led_list[i] = (0,led_list[i][1] - 5,led_list[i][2] - 5)
+            else:
+                led_list[i] = (0,led_list[i][1],led_list[i][2] - 5)
+   
+    return led_list
+    
+    
+def blue_random():
+    global loop_flag
+
+    blue = (0,0,0)
+    pure = (0,0,0)
+    whbl = (0,0,0)
+
+    led_list = [blue,whbl,pure]
+    color_list = ["blue","whbl","pure"]
+
+    while loop_flag:
         
+        led_list = [(0,0,0),(0,0,0),(0,0,0)]
+
+        for n in range(50):
+            
+            s = 0
+            led_list = fade_func(led_list,color_list,"plus")
+            
+            for _ in range(10):
+                for l in led_list:
+                    print(l)
+                    for i in range(5):
+                        print(s)
+                        pixels[s] = l
+                        s += 1
+
+            pixels.show() 
+            time.sleep(0.01)
+            
+            if n % 20 == 0:
+                led_list.append(led_list.pop(0))
+                color_list.append(color_list.pop(0))
+
+        for n in range(50):
+
+            s = 0
+            led_list = fade_func(led_list,color_list,"min")
+            for _ in range(10):
+                for l in led_list:
+                    print(l)
+                    for i in range(5):
+                        print(s)
+                        pixels[s] = l
+                        s += 1
+
+            pixels.show()
+            time.sleep(0.01)
+
+            if n % 20 == 0:
+                led_list.append(led_list.pop(0))
+                color_list.append(color_list.pop(0))
+
+
+def blue_sea(led_list,color_list,start_point):
+    print("Called thread1!")
+    #5づつ明るさを上げるので50回でMax
+
+    time1 = time.time()
+
+    for n in range(50):
+        s = start_point
+        led_list = fade_func(led_list,color_list,"plus")
+        l = led_list[0]
+        for i in range(15):
+            pixels[s] = l
+            s += 1
+
+        pixels.show()
+        time.sleep(0.01)
+        
+        if n % 16 == 0 and n != 0:
+            led_list.append(led_list.pop(0))
+            color_list.append(color_list.pop(0))
+
+    for n in range(50):
+        s = start_point
+        led_list = fade_func(led_list,color_list,"min")
+        l = led_list[0]
+        for i in range(15):
+            pixels[s] = l
+            s += 1
+            
+        pixels.show()
+        time.sleep(0.01)
+
+        if n % 16 == 0 and n != 0:
+            led_list.append(led_list.pop(0))
+            color_list.append(color_list.pop(0))
+    
+    print("Time:",int(time.time() - time1))  
+
+
+def fade_func2(l,color,status):
+    
+    if color == "blue" and status == "plus":
+        if l[2] <= 249:
+            return (0,0,l[2] + 5)
+    elif color == "blue" and status == "min":
+        if l[2] >= 5:
+            return (0,0,l[2] - 5)
+    elif color == "whbl" and status == "plus":
+        if l[1] <= 95:
+            return (0,l[1] + 5,255)
+    elif color == "whbl" and status == "min":
+        if l[1] >= 5:
+            return (0,l[1] - 5,255)
+    elif color == "pure" and status == "plus":
+        if l[1] == 0:
+            l = (0,100,255)
+        if l[1] <= 250:
+            return (0,l[1] + 5,255)
+    elif color == "pure" and status == "min":
+        if l[1] >= 5:
+            return (0,l[1] - 5,255)
+
+
+def blue_sea2(led_list,color_list,start_point):
+    
+    print("Called blue_sea2!")  
+    
+    #5づつ明るさを上げるので50回でMax
+    for n in range(1,101):
+        s = start_point
+        l = fade_func2(led_list[0],color_list[0],"plus")
+        print(l)
+        print("N:",n)
+        led_list[0] = l
+        print("LED_LIST:",led_list)
+        for i in range(15):
+            pixels[s] = l
+            s += 1
+
+        pixels.show()
+        
+        if color_list[0] == "blue":
+            time.sleep(0.0155)
+        elif color_list[0] == "whbl":
+            time.sleep(0.04)
+        elif color_list[0] == "pure":
+            time.sleep(0.025)
+        
+        if n == 50:
+            led_list.append(led_list.pop(0))
+            color_list.append(color_list.pop(0))
+        elif n == 70:
+            led_list.append(led_list.pop(0))
+            color_list.append(color_list.pop(0)) 
+
+    print("WILL DOWON!")
+
+    for n in range(1,101):
+        s = start_point
+        l = fade_func2(led_list[0],color_list[0],"min")
+        led_list[0] = l
+        print("LED_LIST:",led_list)
+        for i in range(15):
+            pixels[s] = l
+            s += 1
+
+        pixels.show()
+ 
+        if color_list[0] == "blue":
+            time.sleep(0.0155)
+        elif color_list[0] == "whbl":
+            time.sleep(0.04)
+        elif color_list[0] == "pure":
+            time.sleep(0.025)
+        
+        if n % 50 == 0 and n != 0:
+            led_list.append(led_list.pop(0))
+            color_list.append(color_list.pop(0))
+
+
+def set_random():
+    global loop_flag
+
+    blue = (0,0,0)
+    whbl = (0,0,0)
+    pure = (0,0,0)
+    
+    #led_list = [blue,whbl,pure]
+    #color_list = ["blue","whbl","pure"]
+
+    while loop_flag:
+        
+        led_list = [blue,whbl,pure]
+        color_list = ["blue","whbl","pure"]
+
+        phase1 = [0,30,60,90,120]
+        phase2 = [25,45,75,105,135]
+
+        print("Phase1:",phase1)
+        print("Phase2:",phase2)
+         
+        for p1 in phase1:
+
+            start_point = p1
+            #blue_sea2(led_list,color_list,start_point)
+            thread1 = threading.Thread(target=blue_sea2, args=[[blue,whbl,pure],["blue","whbl","pure"],start_point])
+        
+            #start_point2 = phase2[k]
+
+            #thread2 = threading.Thread(target=blue_sea2, args=[[blue,whbl,pure],["blue","whbl","pure"],start_point2])
+    
+            thread1.start()
+            print("start thread1",start_point)
+
+            #sleep_time = random.randint(0,10) * 0.1
+            #time.sleep(sleep_time)
+
+            #thread2.start()
+            #print("start thread2",start_point2)
+        
+            print("sleep 5s...")
+
+        time.sleep(60)
+        
+        for p2 in phase2:
+
+            start_point2 = p2
+            thread2 = threading.Thread(target=blue_sea2, args=[[blue,whbl,pure],["blue","whbl","pure"],start_point2])
+            
+            thread2.start()
 
 def blue_flash():
     g = 150
@@ -301,6 +551,7 @@ def blue_flash():
             g -= 5
             
         pixels.fill((0,g,i))
+        pixels.show()
 
 def key_event():
     global loop_flag,blihtness,lo_blight
@@ -308,7 +559,9 @@ def key_event():
     pixels.fill((0,0,0))
     pixels.show()
 
+    time.sleep(2)
     while True:
+        
         key = getch()
         if key == "b":
             #soft_flash((0,0,30),"blue")
@@ -317,6 +570,12 @@ def key_event():
         elif key == "r":
             loop_flag = False
             soft_flash((30,0,0),"red")
+        elif key == "m":
+            blue_random()
+        elif key == "v":
+            set_random()
+        elif key == "n":
+            blue_flash()
         elif key == "y":
             soft_flash((30,30,0),"yellow")
         elif key == "w":
@@ -349,4 +608,4 @@ if __name__ == "__main__":
     thread_bc = threading.Thread(target=blue_circle)
     
     thread_key.start()
-
+    set_random()
