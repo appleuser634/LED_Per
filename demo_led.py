@@ -633,28 +633,73 @@ def blue_image():
 def tri_blue():
     global loop_flag 
 
+    while loop_flag:
 
-    for i in range(0,100,5):
+        for i in range(0,100,5):
+            
+            if loop_flag == False:
+                break
 
-        n = 0
-        for _ in range(20):
-            for _ in range(5):
-                pixels[n] = (0,0,255)
-                n += 1
-            for _ in range(5):
-                if i <= 50:
+            n = 0
+            for _ in range(20):
+                for _ in range(5):
+                    pixels[n] = (0,0,255)
+                    n += 1
+                for _ in range(5):
+                    if i <= 50:
+                        pixels[n] = (0,i,255)
+                        n += 1
+                    else:
+                        pixels[n] = (0,50,255)
+                        n += 1
+                for _ in range(5):
                     pixels[n] = (0,i,255)
                     n += 1
-                else:
-                    pixels[n] = (0,50,255)
+
+            pixels.show()
+         
+        time.sleep(0.1)
+        print("Max Light!")
+        
+        for i in reversed(range(0,100,5)):
+            if loop_flag == False:
+                break
+
+            n = 0
+            for _ in range(20):
+                for _ in range(5):
+                    pixels[n] = (0,0,255)
                     n += 1
-            for _ in range(5):
-                pixels[n] = (0,i,255)
-                n += 1
+                for _ in range(5):
+                    if i - 50 >= 0:
+                        pixels[n] = (0,i - 50,255)
+                        n += 1
+                    else:
+                        pixels[n] = (0,0,255)
+                        n += 1
+                for _ in range(5):
+                    pixels[n] = (0,i,255)
+                    n += 1
 
-        pixels.show()
+            pixels.show()
+        
+        print("Min Linght!")
 
+def random_blue():
     
+    color_set = [(0,0,255),(0,50,255),(0,100,255)]
+    
+    n = 0
+    for _ in range(60):
+        
+        color = random.randint(0,2)
+
+        for _ in range(5):
+            pixels[n] = color_set[color]
+            n += 1
+    
+    pixels.show()
+
 def ending():
     
     for i in reversed(range(0,155)):    
@@ -688,7 +733,7 @@ def key_event():
                 preset_con()
 
         elif key == "b":
-            if preset_n <= 7:
+            if preset_n <= 8:
                 preset_n += 1
                 preset_con()
         
@@ -749,15 +794,21 @@ def key_event():
         #    pixels.show()
         #    break
 
+
 def preset_con():
     global preset_n,loop_flag
 
-    preset = ["1","3","1","2","5","1","1","4"]
+    preset = ["1","3","1","2","6","5","1","1","4"]
 
     if preset[preset_n] == "1":
         loop_flag = False
-        tri_blue()
+        time.sleep(1)
+        loop_flag = True
+        thread_bt = threading.Thread(target=tri_blue)
+        thread_bt.start()
     elif preset[preset_n] == "2":
+        loop_flag = False
+        time.sleep(1)
         loop_flag = True 
         thread_bc = threading.Thread(target=blue_circle)
         thread_bc.start()
@@ -768,10 +819,15 @@ def preset_con():
         pixels.show()
     elif preset[preset_n] == "4":
         loop_flag = False
+        time.sleep(1)
         ending()
     elif preset[preset_n] == "5":
         loop_flag = False
         soft_flash(30,"red")
+    elif preset[preset_n] == "6":
+        loop_flag = False
+        time.sleep(0.5)
+        random_blue()
     
 if __name__ == "__main__":
     thread_key = threading.Thread(target=key_event)
