@@ -4,7 +4,7 @@ import time
 import random
 import threading
 
-pixels = neopixel.NeoPixel(board.D18, 750)
+pixels = neopixel.NeoPixel(board.D18, 150)
 
 import sys
 import tty
@@ -177,13 +177,13 @@ def key_event():
 
     while True:
         key = getch()
-        if key == "r":
+        if key == "a":
             if 254 >= r:
                 r += 1
-        elif key == "g":
+        elif key == "b":
            if 254 >= g:
                 g += 1
-        elif key == "b":
+        elif key == "c":
            if 254 >= b:
                 b += 1
         elif key == "e":

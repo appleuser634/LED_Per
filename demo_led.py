@@ -4,7 +4,7 @@ import time
 import random
 import threading
 
-pixels = neopixel.NeoPixel(board.D18, 750, auto_write=False)
+pixels = neopixel.NeoPixel(board.D18, 300, auto_write=False)
 
 import sys
 import tty
@@ -71,7 +71,7 @@ def fade_light():
             l_strip += 1
 
 def soft_flash(level,color):
-
+    
     r_center = 74
     l_center = 75
 
@@ -84,7 +84,7 @@ def soft_flash(level,color):
 
     time.sleep(0.1)
 
-    for i in range(0,255,3):
+    for i in range(0,100,3):
         print(i)
 
         if color == "blue":
@@ -98,7 +98,7 @@ def soft_flash(level,color):
         elif color == "green":
             pixels.fill((0,i,0))
         
-        time.sleep(0.1)
+        time.sleep(0.01)
         pixels.show()
 
 def random_wave():
@@ -174,19 +174,19 @@ def blue_circle():
             pixels[start_point5 + i] = (100,0,255)
         
         
-        if start_point >= 744:
+        if start_point >= 299:
             start_point = 0
         
-        if start_point2 >= 744:
+        if start_point2 >= 299:
             start_point2 = 0
 
-        if start_point3 >= 744:
+        if start_point3 >= 299:
             start_point3 = 0
 
-        if start_point4 >= 744:
+        if start_point4 >= 299:
             start_point4 = 0
 
-        if start_point5 >= 744:
+        if start_point5 >= 299:
             start_point5 = 0
 
 
@@ -199,7 +199,9 @@ def blue_circle():
         
         pixels.show()
         time.sleep(0.01)
-
+    
+    pixels.fill((0,0,0))
+    pixels.show()
 
 def blue_random_fake():
     global loop_flag
@@ -549,12 +551,128 @@ def blue_flash():
     for i in reversed(range(0,255,5)):
         if g >= 5:
             g -= 5
-            
-        pixels.fill((0,g,i))
+         
+        pixels.fill((0,g,255))
         pixels.show()
 
+
+def blue_pipe():
+    global loop_flag
+    
+    pixels.fill((0,0,255))
+    pixels.show()
+    
+    start_point1 = 0
+    start_point2 = 150
+
+    while loop_flag:
+        pixels.fill((0,0,255))
+
+        for i in range(50):
+            if start_point1 + i <= 299:
+                pixels[start_point1 + i] = (0,100,255)
+            else:
+                start_point1 = 0
+                break
+        
+        for i in range(50):
+            if start_point2 - i >= 0:
+                print(start_point2 - i)
+                pixels[start_point2 - i] = (0,100,255)
+            else:
+                start_point2 = 300
+                break
+
+        start_point1 += 2
+        start_point2 -= 2
+
+        pixels.show()
+        time.sleep(0.03)
+
+def blue_image():
+    global loop_flag
+
+    b = (0,0,0)
+    for _ in range(50):
+        b = fade_func2(b,"blue","plus")
+        pixels.fill(b)
+        pixels.show()
+
+        time.sleep(0.05)
+
+    while loop_flag:
+         
+        l = (0,30,255)
+        for i in range(14):
+            l = fade_func2(l,"whbl","plus")
+            print(l)
+            pixels.fill(l) 
+            pixels.show()
+            time.sleep(0.1)
+
+        for i in range(29):
+            l = fade_func2(l,"pure","plus")
+            print(l)
+            pixels.fill(l)
+            pixels.show()
+            time.sleep(0.1)
+        for i in range(29):
+            l = fade_func2(l,"pure","min")
+            print(l)
+            pixels.fill(l)
+            pixels.show()
+            time.sleep(0.1)
+
+        for i in range(14):
+            l = fade_func2(l,"whbl","min")
+            print(l)
+            pixels.fill(i)
+            pixels.show 
+            time.sleep(0.1)
+
+def tri_blue():
+    global loop_flag 
+
+
+    for i in range(0,100,5):
+
+        n = 0
+        for _ in range(20):
+            for _ in range(5):
+                pixels[n] = (0,0,255)
+                n += 1
+            for _ in range(5):
+                if i <= 50:
+                    pixels[n] = (0,i,255)
+                    n += 1
+                else:
+                    pixels[n] = (0,50,255)
+                    n += 1
+            for _ in range(5):
+                pixels[n] = (0,i,255)
+                n += 1
+
+        pixels.show()
+
+    
+def ending():
+    
+    for i in reversed(range(0,155)):    
+        
+        flash_point = [random.randint(0,299) for i in range(20)]
+        flash_point2 = [random.randint(0,299) for i in range(20)]
+    
+        for l in flash_point:
+            pixels[l] = (i,i,i)
+        for l in flash_point2:
+            pixels[l] = (0,i,i)
+
+        pixels.show()
+        time.sleep(0.01)
+        pixels.fill((0,0,0))
+
 def key_event():
-    global loop_flag,blihtness,lo_blight
+    global loop_flag,blihtness,lo_blight,preset_n
     
     pixels.fill((0,0,0))
     pixels.show()
@@ -563,49 +681,102 @@ def key_event():
     while True:
         
         key = getch()
-        if key == "b":
-            #soft_flash((0,0,30),"blue")
-            #blue_flash()
-            thread_bc.start()
-        elif key == "r":
+
+        if key == "a":
+            if preset_n >= 0:
+                preset_n -= 1
+                preset_con()
+
+        elif key == "b":
+            if preset_n <= 7:
+                preset_n += 1
+                preset_con()
+        
+        elif key == "c":
             loop_flag = False
-            soft_flash((30,0,0),"red")
-        elif key == "m":
-            blue_random()
-        elif key == "v":
-            set_random()
-        elif key == "n":
             blue_flash()
-        elif key == "y":
-            soft_flash((30,30,0),"yellow")
-        elif key == "w":
-            soft_flash((30,30,30),"white")
-        elif key == "g":
-            soft_flash((0,30,0),"green")
-        elif key == "o":
-            loop_flag = False
-            pixels.fill((0,0,0))
-            pixels.show()
-        elif key == "h":
-            blue_wave()
-        elif key == "a":
-            random_wave()
-        elif key == "j":
-            if 250 >= blihtness:
-                blihtness += 5
-        elif key == "k":
-            if blihtness >= lo_blight + 5:
-                blihtness -= 5 
+            loop_flag = True
+            preset_con()
+
         elif key == "q":
-            loop_flag = False
             pixels.fill((0,0,0))
             pixels.show()
             break
+        
+        #if key == "b":
+            #soft_flash((0,0,30),"blue")
+            #blue_flash()
+        #    thread_bc.start()
+        #elif key == "r":
+        #    loop_flag = False
+        #    soft_flash((30,0,0),"red")
+        #elif key == "m":
+        #    blue_random()
+        #elif key == "v":
+        #    blue_pipe()
+        #elif key == "n":
+        #    blue_flash()
+        #elif key == "c":
+            #soft_flash((0,0,30),"blue")
+            #thread_bf.start()
+        #    loop_flag = False
+        #    blue_flash()
+        #    loop_flag = True
+        #    blue_circle()
 
+        #elif key == "w":
+        #    soft_flash((30,30,30),"white")
+        #elif key == "g":
+        #    soft_flash((0,30,0),"green")
+        #elif key == "o":
+        #    loop_flag = False
+        #    pixels.fill((0,0,0))
+        #    pixels.show()
+        #elif key == "h":
+        #    blue_wave()
+        #elif key == "a":
+            #random_wave()
+       #     set_random()
+        #elif key == "j":
+        #    if 250 >= blihtness:
+        #        blihtness += 5
+        #elif key == "k":
+        #    if blihtness >= lo_blight + 5:
+        #        blihtness -= 5 
+        #elif key == "q":
+        #    loop_flag = False
+        #    pixels.fill((0,0,0))
+        #    pixels.show()
+        #    break
 
+def preset_con():
+    global preset_n,loop_flag
+
+    preset = ["1","3","1","2","5","1","1","4"]
+
+    if preset[preset_n] == "1":
+        loop_flag = False
+        tri_blue()
+    elif preset[preset_n] == "2":
+        loop_flag = True 
+        thread_bc = threading.Thread(target=blue_circle)
+        thread_bc.start()
+        #blue_circle()
+    elif preset[preset_n] == "3":
+        loop_flag = False
+        pixels.fill((0,255,255))
+        pixels.show()
+    elif preset[preset_n] == "4":
+        loop_flag = False
+        ending()
+    elif preset[preset_n] == "5":
+        loop_flag = False
+        soft_flash(30,"red")
+    
 if __name__ == "__main__":
     thread_key = threading.Thread(target=key_event)
-    thread_bc = threading.Thread(target=blue_circle)
+    #thread_bc = threading.Thread(target=blue_circle)
+    #thread_bf = threading.Thread(target=blue_flash)
     
+    preset_n = -1
     thread_key.start()
-    set_random()
