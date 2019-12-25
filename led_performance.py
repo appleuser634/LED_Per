@@ -4,11 +4,21 @@ import time
 import random
 import threading
 
-pixels = neopixel.NeoPixel(board.D18, 750, auto_write=False)
+pixels = neopixel.NeoPixel(board.D18, 450, auto_write=False)
 
 import sys
 import tty
 import termios
+
+from evdev import InputDevice
+from select import select
+
+import subprocess
+
+# look for a /dev/input/by-id/usb...kbd or something similar
+DEVICE = "/dev/input/by-id/usb-1a86_e026-event-kbd"
+dev = InputDevice(DEVICE)
+
     
 #blue_random is threading process
 
@@ -174,19 +184,19 @@ def blue_circle():
             pixels[start_point5 + i] = (100,0,255)
         
         
-        if start_point >= 743:
+        if start_point >= 443:
             start_point = 0
         
-        if start_point2 >= 743:
+        if start_point2 >= 43:
             start_point2 = 0
 
-        if start_point3 >= 743:
+        if start_point3 >= 443:
             start_point3 = 0
 
-        if start_point4 >= 743:
+        if start_point4 >= 443:
             start_point4 = 0
 
-        if start_point5 >= 743:
+        if start_point5 >= 443:
             start_point5 = 0
 
 
@@ -630,8 +640,16 @@ def blue_image():
             pixels.show 
             time.sleep(0.1)
 
-def tri_blue():
+def tri_blue(status="None"):
     global loop_flag 
+    
+    if status == "soft":
+
+        for b in range(30,255,5):
+
+            pixels.fill((0,0,b))
+            pixels.show()
+
 
     while loop_flag:
 
@@ -641,7 +659,7 @@ def tri_blue():
                 break
 
             n = 0
-            for _ in range(50):
+            for _ in range(30):
                 for _ in range(5):
                     pixels[n] = (0,0,255)
                     n += 1
@@ -666,7 +684,7 @@ def tri_blue():
                 break
 
             n = 0
-            for _ in range(50):
+            for _ in range(30):
                 for _ in range(5):
                     pixels[n] = (0,0,255)
                     n += 1
@@ -690,7 +708,7 @@ def random_blue():
     color_set = [(0,0,255),(0,50,255),(0,100,255)]
     
     n = 0
-    for _ in range(60):
+    for _ in range(90):
         
         color = random.randint(0,2)
 
@@ -700,12 +718,22 @@ def random_blue():
     
     pixels.show()
 
+def starting():
+    
+    for b in range(0,30):
+
+        pixels.fill((0,0,b))
+        pixels.show()
+
+        time.sleep(0.02)
+
+
 def ending():
     
     for i in reversed(range(0,155)):    
         
-        flash_point = [random.randint(0,749) for i in range(40)]
-        flash_point2 = [random.randint(0,749) for i in range(40)]
+        flash_point = [random.randint(0,449) for i in range(20)]
+        flash_point2 = [random.randint(0,449) for i in range(20)]
     
         for l in flash_point:
             pixels[l] = (i,i,i)
@@ -717,37 +745,52 @@ def ending():
         pixels.fill((0,0,0))
 
 def key_event():
-    global loop_flag,blihtness,lo_blight,preset_n
+    global loop_flag,blihtness,lo_blight,preset_n,dev,first_music
     
     pixels.fill((0,0,0))
     pixels.show()
+    
+    starting()
+    
+    first_music = True
 
-    time.sleep(2)
-    while True:
+    while first_music:
         
-        key = getch()
-
-        if key == "a":
-            if preset_n >= 0:
-                preset_n -= 1
-                preset_con()
-
-        elif key == "b":
-            if preset_n <= 8:
-                preset_n += 1
-                preset_con()
+        #key = getch()
         
-        elif key == "c":
-            loop_flag = False
-            blue_flash()
-            loop_flag = True
-            preset_con()
+        r, w, x = select([dev],[],[])
 
-        elif key == "q":
-            pixels.fill((0,0,0))
-            pixels.show()
-            break
-        
+        for event in dev.read():
+            
+            if event.type == 1 and event.value == 1:
+
+                if event.code == 30:
+                    if preset_n >= 0:
+                        preset_n -= 1
+                        preset_con()
+
+                elif event.code == 48:
+                    if preset_n <= 7:
+                        preset_n += 1
+                        preset_con()
+                
+                elif event.code == 46:
+                    loop_flag = False
+                    blue_flash()
+                    loop_flag = True
+                    preset_con()
+
+                elif event.code == "q":
+                    pixels.fill((0,0,0))
+                    pixels.show()
+                    break
+                
+                if preset_n == 8:
+                    pixels.fill((0,0,0))
+                    first_music = False
+                    break
+                
+                print("Preset Number:",preset_n) 
         #if key == "b":
             #soft_flash((0,0,30),"blue")
             #blue_flash()
@@ -798,7 +841,7 @@ def key_event():
 def preset_con():
     global preset_n,loop_flag
 
-    preset = ["1","3","1","2","6","5","1","1","4"]
+    preset = ["1.5","1","3","1","2","6","5","1","4"]
 
     if preset[preset_n] == "1":
         loop_flag = False
@@ -806,6 +849,14 @@ def preset_con():
         loop_flag = True
         thread_bt = threading.Thread(target=tri_blue)
         thread_bt.start()
+    
+    if preset[preset_n] == "1.5":
+        loop_flag = False
+        time.sleep(1)
+        loop_flag = True
+        thread_bt = threading.Thread(target=tri_blue,args=(["soft"]))
+        thread_bt.start()
+
     elif preset[preset_n] == "2":
         loop_flag = False
         time.sleep(1)
@@ -833,6 +884,13 @@ if __name__ == "__main__":
     thread_key = threading.Thread(target=key_event)
     #thread_bc = threading.Thread(target=blue_circle)
     #thread_bf = threading.Thread(target=blue_flash)
-    
+    first_music = True
     preset_n = -1
     thread_key.start()
+    
+    while True:
+        if first_music == False:
+            break
+
+    cmd = "sudo python3 led_performance2.py"
+    subprocess.call(cmd, shell=True)

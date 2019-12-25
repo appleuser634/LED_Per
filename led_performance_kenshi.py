@@ -9,6 +9,14 @@ pixels = neopixel.NeoPixel(board.D18, 750, auto_write=False)
 import sys
 import tty
 import termios
+
+from evdev import InputDevice
+from select import select
+
+# look for a /dev/input/by-id/usb...kbd or something similar
+DEVICE = "/dev/input/by-id/usb-1a86_e026-event-kbd"
+dev = InputDevice(DEVICE)
+
     
 #blue_random is threading process
 
@@ -174,19 +182,19 @@ def blue_circle():
             pixels[start_point5 + i] = (100,0,255)
         
         
-        if start_point >= 743:
+        if start_point >= 443:
             start_point = 0
         
-        if start_point2 >= 743:
+        if start_point2 >= 43:
             start_point2 = 0
 
-        if start_point3 >= 743:
+        if start_point3 >= 443:
             start_point3 = 0
 
-        if start_point4 >= 743:
+        if start_point4 >= 443:
             start_point4 = 0
 
-        if start_point5 >= 743:
+        if start_point5 >= 443:
             start_point5 = 0
 
 
@@ -543,34 +551,30 @@ def set_random():
             thread2.start()
 
 def blue_flash():
-    g = 150
-    pixels.fill((0,150,255))
+        
+    for i in reversed(range(30,100,5)):
 
-    time.sleep(0.01)
-    
-    for i in reversed(range(0,255,5)):
-        if g >= 5:
-            g -= 5
-         
-        pixels.fill((0,g,255))
+        for l in range(450):
+            pixels[l] = (0,0,i)
+        
         pixels.show()
 
 
 def blue_pipe():
     global loop_flag
     
-    pixels.fill((0,0,255))
+    pixels.fill((100,0,0))
     pixels.show()
     
     start_point1 = 0
-    start_point2 = 150
+    start_point2 = 700
 
     while loop_flag:
-        pixels.fill((0,0,255))
+        pixels.fill((100,0,0))
 
         for i in range(50):
-            if start_point1 + i <= 299:
-                pixels[start_point1 + i] = (0,100,255)
+            if start_point1 + i <= 749:
+                pixels[start_point1 + i] = (0,0,255)
             else:
                 start_point1 = 0
                 break
@@ -578,16 +582,15 @@ def blue_pipe():
         for i in range(50):
             if start_point2 - i >= 0:
                 print(start_point2 - i)
-                pixels[start_point2 - i] = (0,100,255)
+                pixels[start_point2 - i] = (0,0,255)
             else:
-                start_point2 = 300
+                start_point2 = 749
                 break
 
         start_point1 += 2
         start_point2 -= 2
 
         pixels.show()
-        time.sleep(0.03)
 
 def blue_image():
     global loop_flag
@@ -630,8 +633,16 @@ def blue_image():
             pixels.show 
             time.sleep(0.1)
 
-def tri_blue():
+def tri_blue(status="None"):
     global loop_flag 
+    
+    if status == "soft":
+
+        for b in range(30,255,5):
+
+            pixels.fill((0,0,b))
+            pixels.show()
+
 
     while loop_flag:
 
@@ -641,7 +652,7 @@ def tri_blue():
                 break
 
             n = 0
-            for _ in range(50):
+            for _ in range(30):
                 for _ in range(5):
                     pixels[n] = (0,0,255)
                     n += 1
@@ -666,7 +677,7 @@ def tri_blue():
                 break
 
             n = 0
-            for _ in range(50):
+            for _ in range(30):
                 for _ in range(5):
                     pixels[n] = (0,0,255)
                     n += 1
@@ -690,7 +701,7 @@ def random_blue():
     color_set = [(0,0,255),(0,50,255),(0,100,255)]
     
     n = 0
-    for _ in range(60):
+    for _ in range(90):
         
         color = random.randint(0,2)
 
@@ -700,12 +711,235 @@ def random_blue():
     
     pixels.show()
 
+def starting():
+    global loop_flag
+
+    while loop_flag:
+        
+        for l in range(10,50,5):
+            if loop_flag == False:
+                break
+
+            for i in range(450):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (l,l,l)
+            
+            pixels.show()
+            time.sleep(0.001) 
+        
+        for l in reversed(range(10,50,5)):
+            if loop_flag == False:
+                break
+
+            for i in range(450):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (l,l,l)
+            
+            pixels.show()
+            time.sleep(0.001)
+
+def piano_flash(status):
+
+    #for l in range(20,250,50):
+
+    #    for i in range(450,750):
+    #        pixels[i] = (l,0,0)
+
+    #    pixels.show()
+    #    time.sleep(0.01)
+    
+    if status == "red":
+
+        for l in reversed(range(450,750,10)):
+            for i in range(10):
+                pixels[l+i] = (255,0,0)
+            pixels.show() 
+    
+    if status == "blue":
+
+        for l in range(450,750,10):
+            for i in range(10):
+                pixels[l+i] = (0,0,255)
+            pixels.show()
+
+
+def piano_lightblue():
+    global loop_flag
+    
+    pixels.fill((40,40,40))
+
+    while loop_flag:
+
+        for l in range(10,50,5):
+            if loop_flag == False:
+                break
+
+            for i in range(450,750):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (0,l,l)
+            
+            pixels.show()
+            time.sleep(0.001) 
+        
+        for l in reversed(range(10,50,5)):
+            if loop_flag == False:
+                break
+
+            for i in range(450,750):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (0,l,l)
+            
+            pixels.show()
+            time.sleep(0.001)
+
+def guiter_lightpurpe():
+    global loop_flag
+    
+    pixels.fill((40,40,40))
+
+    while loop_flag:
+
+        for l in range(10,50,5):
+            if loop_flag == False:
+                break
+
+            for i in range(450):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (l,0,l)
+            
+            pixels.show()
+            time.sleep(0.001) 
+        
+        for l in reversed(range(10,50,5)):
+            if loop_flag == False:
+                break
+
+            for i in range(450):
+                if loop_flag == False:
+                    break
+
+                pixels[i] = (l,0,l)
+            
+            pixels.show()
+            time.sleep(0.001)
+
+def yellow_flash():
+    
+    for i in reversed(range(30,100,5)):
+        for l in range(450):
+            pixels[l] = (i,0,0)
+        
+        pixels.show()    
+
+
+def guiter_flash():
+    
+    for l in range(0,150,10):
+        for i in range(10):
+            pixels[l+i] = (0,0,255)
+        pixels.show()
+
+def white_swipe(status):
+
+    pixels.fill((0,0,0))
+
+    if status == "right":
+
+        for i in reversed(range(0,750,75)):
+            
+            for n in range(75):
+                pixels[i+n] = (0,0,255)
+
+            pixels.show()
+
+        pixels.fill((0,255,255))
+        pixels.show()
+
+    if status == "left":
+
+        for i in range(0,750,75):
+            
+            for n in range(75):
+                pixels[i+n] = (0,0,255)
+
+            pixels.show()
+
+        pixels.fill((0,255,255))
+        pixels.show()
+
+    if status == "center":
+        
+        center = 375
+
+        for i in range(0,375,75):
+            
+            for n in range(75):
+                pixels[center+i+n] = (100,0,0)
+                pixels[center-i-n] = (100,0,0)
+
+            pixels.show()
+
+        pixels.fill((155,0,0))
+        pixels.show()
+
+def orange_bit():
+    
+    pixels.fill((0,0,0))
+        
+    for i in range(2):
+
+        #for i in range(10,150,30):
+        #    pixels.fill((i,0,0))
+        #    pixels.show()
+
+        #for i in reversed(range(10,150,30)):
+        #    pixels.fill((i,0,0))
+        #    pixels.show()
+        
+        pixels.fill((150,0,0))
+        pixels.show()
+
+        time.sleep(0.1)
+        
+        pixels.fill((0,0,0))
+        pixels.show()
+
+        time.sleep(0.1)
+
+    pixels.fill((0,0,0))
+
+def purp_center():
+        
+    center = 375
+
+    for i in range(0,375,25):
+        
+        for n in range(25):
+            pixels[center+i+n] = (50,0,50)
+            pixels[center-i-n] = (50,0,50)
+
+        pixels.show()
+
+    pixels.fill((80,0,100))
+    pixels.show()
+
+
 def ending():
     
     for i in reversed(range(0,155)):    
         
-        flash_point = [random.randint(0,749) for i in range(40)]
-        flash_point2 = [random.randint(0,749) for i in range(40)]
+        flash_point = [random.randint(0,449) for i in range(20)]
+        flash_point2 = [random.randint(0,449) for i in range(20)]
     
         for l in flash_point:
             pixels[l] = (i,i,i)
@@ -717,15 +951,43 @@ def ending():
         pixels.fill((0,0,0))
 
 def key_event():
-    global loop_flag,blihtness,lo_blight,preset_n
+    global loop_flag,blihtness,lo_blight,preset_n,dev
     
     pixels.fill((0,0,0))
     pixels.show()
-
-    time.sleep(2)
+    
     while True:
         
         key = getch()
+        """
+        r, w, x = select([dev],[],[])
+
+        for event in dev.read():
+            
+            if event.type == 1 and event.value == 1:
+
+                if event.code == 30:
+                    if preset_n >= 0:
+                        preset_n -= 1
+                        preset_con()
+
+                elif event.code == 48:
+                    if preset_n <= 8:
+                        preset_n += 1
+                        preset_con()
+                
+                elif event.code == 46:
+                    loop_flag = False
+                    orange_bit()
+                    loop_flag = True
+                    preset_con()
+
+                elif event.code == "q":
+                    pixels.fill((0,0,0))
+                    pixels.show()
+                    break
+        """
+            
 
         if key == "a":
             if preset_n >= 0:
@@ -733,21 +995,26 @@ def key_event():
                 preset_con()
 
         elif key == "b":
-            if preset_n <= 8:
+            if preset_n <= 15:
                 preset_n += 1
                 preset_con()
         
         elif key == "c":
+            pixels.fill((0,0,0))
+            loop_flag = False
+            yellow_flash()
+            loop_flag = True
+            #preset_con()
+        elif key == "v":
+            pixels.fill((0,0,0))
             loop_flag = False
             blue_flash()
             loop_flag = True
-            preset_con()
 
         elif key == "q":
             pixels.fill((0,0,0))
             pixels.show()
             break
-        
         #if key == "b":
             #soft_flash((0,0,30),"blue")
             #blue_flash()
@@ -798,41 +1065,62 @@ def key_event():
 def preset_con():
     global preset_n,loop_flag
 
-    preset = ["1","3","1","2","6","5","1","1","4"]
+    preset = ["1","2","3","4","5","6","7","8","9","10","11","12"]
 
     if preset[preset_n] == "1":
         loop_flag = False
         time.sleep(1)
         loop_flag = True
-        thread_bt = threading.Thread(target=tri_blue)
+        thread_bt = threading.Thread(target=starting)
         thread_bt.start()
+    
     elif preset[preset_n] == "2":
         loop_flag = False
-        time.sleep(1)
-        loop_flag = True 
-        thread_bc = threading.Thread(target=blue_circle)
-        thread_bc.start()
-        #blue_circle()
+        time.sleep(0.1)
+        pixels.fill((0,0,0))
+        piano_flash("red")
     elif preset[preset_n] == "3":
-        loop_flag = False
-        pixels.fill((0,255,255))
-        pixels.show()
+        guiter_flash()
     elif preset[preset_n] == "4":
-        loop_flag = False
-        time.sleep(1)
-        ending()
+        piano_flash("blue")
     elif preset[preset_n] == "5":
-        loop_flag = False
-        soft_flash(30,"red")
+        purp_center()
     elif preset[preset_n] == "6":
+        loop_flag = True
+        thread_lb = threading.Thread(target=guiter_lightpurpe)
+        thread_lb.start()
+        #blue_circle()
+    elif preset[preset_n] == "7":
+        loop_flag = False;
+        time.sleep(0.1)
+        white_swipe("right")
+    elif preset[preset_n] == "8":
+        white_swipe("left")
+    elif preset[preset_n] == "9":
+        white_swipe("center")
+    elif preset[preset_n] == "10":
+        loop_flag = True
+        thread_lb = threading.Thread(target=piano_lightblue)
+        thread_lb.start()
+    elif preset[preset_n] == "11":
         loop_flag = False
-        time.sleep(0.5)
-        random_blue()
+        time.sleep(0.1)
+        loop_flag = True
+        blue_pipe()
+    elif preset[preset_n] == "12":
+        loop_flag = False
+        time.sleep(0.1)
+        
+
+def main():
+    global preset_n
     
-if __name__ == "__main__":
     thread_key = threading.Thread(target=key_event)
     #thread_bc = threading.Thread(target=blue_circle)
     #thread_bf = threading.Thread(target=blue_flash)
     
     preset_n = -1
     thread_key.start()
+    
+if __name__ == "__main__":
+    main()
