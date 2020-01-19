@@ -892,5 +892,5 @@ if __name__ == "__main__":
         if first_music == False:
             break
 
-    cmd = "sudo python3 led_performance2.py"
-    subprocess.call(cmd, shell=True)
+    #cmd = "sudo python3 led_performance2.py"
+    #subprocess.call(cmd, shell=True)

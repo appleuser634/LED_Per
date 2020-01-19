@@ -933,22 +933,33 @@ def purp_center():
     pixels.fill((80,0,100))
     pixels.show()
 
+def all_flash():
+    
+    for i in reversed(range(30,100,5)):
+        pixels.fill((i,0,0))
+        pixels.show()
 
 def ending():
     
-    for i in reversed(range(0,155)):    
+    for i in reversed(range(0,155,2)):    
         
-        flash_point = [random.randint(0,449) for i in range(20)]
-        flash_point2 = [random.randint(0,449) for i in range(20)]
+        flash_point = [random.randint(0,749) for i in range(40)]
+        flash_point2 = [random.randint(0,749) for i in range(40)]
     
         for l in flash_point:
             pixels[l] = (i,i,i)
         for l in flash_point2:
-            pixels[l] = (0,i,i)
+            pixels[l] = (i,i,0)
 
         pixels.show()
-        time.sleep(0.01)
+        #time.sleep(0.005)
         pixels.fill((0,0,0))
+
+def finish():
+    
+    for i in reversed(range(10,40,5)):
+        pixels.fill((i,i,i))
+        pixels.show()
 
 def key_event():
     global loop_flag,blihtness,lo_blight,preset_n,dev
@@ -995,7 +1006,7 @@ def key_event():
                 preset_con()
 
         elif key == "b":
-            if preset_n <= 15:
+            if preset_n <= 20:
                 preset_n += 1
                 preset_con()
         
@@ -1010,7 +1021,14 @@ def key_event():
             loop_flag = False
             blue_flash()
             loop_flag = True
-
+        elif key == "x":
+            loop_flag = False
+            all_flash()
+            loop_flag = True
+        elif key == "m":
+            finish()
+            pixels.fill((0,0,0))
+            pixels.show()
         elif key == "q":
             pixels.fill((0,0,0))
             pixels.show()
@@ -1065,7 +1083,7 @@ def key_event():
 def preset_con():
     global preset_n,loop_flag
 
-    preset = ["1","2","3","4","5","6","7","8","9","10","11","12"]
+    preset = ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"]
 
     if preset[preset_n] == "1":
         loop_flag = False
@@ -1106,12 +1124,39 @@ def preset_con():
         loop_flag = False
         time.sleep(0.1)
         loop_flag = True
-        blue_pipe()
+        thread_bp = threading.Thread(target=blue_pipe)
+        thread_bp.start()
     elif preset[preset_n] == "12":
         loop_flag = False
-        time.sleep(0.1)
+        pixels.fill((0,20,20))
+        pixels.show()
         
-
+    elif preset[preset_n] == "13":
+        loop_flag = False
+        pixels.fill((0,40,40))
+        pixels.show()
+        
+    elif preset[preset_n] == "14":
+        loop_flag = False
+        pixels.fill((0,80,80))
+        pixels.show()
+        
+    elif preset[preset_n] == "15":
+        loop_flag = False
+        pixels.fill((0,120,120))
+        pixels.show()
+        
+    elif preset[preset_n] == "16":
+        loop_flag = False
+        pixels.fill((0,150,150))
+        pixels.show()
+    elif preset[preset_n] == "17":
+        pixels.fill((0,0,0))
+        pixels.show()
+    elif preset[preset_n] == "18":
+        ending()
+        
+        
 def main():
     global preset_n
     
